@@ -1,3 +1,4 @@
 [submodule "libs/libftx"]
 	path = libs/libftx
-	url = https://github.com/rgrmra/libftx.git
+	url = https://github.com/rgrmra/libftx
+	branch = main
