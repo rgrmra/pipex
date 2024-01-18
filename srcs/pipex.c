@@ -6,39 +6,57 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/17 21:57:22 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/18 15:57:33 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	**findenv(char **env, char *var)
+char	**ft_getenv(char **env, char *var)
 {
 	size_t	i;
+	size_t	size;
 
+	if (!env || !var)
+		return (0);
+	size = ft_strlen(var);
 	i = 0;
-	while (ft_strncmp(*(env + i), var, 4))
+	while (*(env + i) && ft_strncmp(*(env + i), var, size))
 		i++;
-	return (ft_split(*(env + i), ':'));
+	if (!*(env + i))
+		return (0);
+	return (ft_split(*(env + i) + size + 1, ':'));
 }
-
 
 int	main(int argc, char **argv, char **env)
 {
 	int		i;
-	char	**path;
-
+	t_data	data;
+	char	*tmp;
+	pid_t	pid;
 
 	if (argc < 2 || argv[1] == (void *)0)
 		return (1);
-	path = findenv(env, "PATH");
+	data.path = ft_getenv(env, argv[1]);
 	i = 0;
-	while (*(path + i))
+	pid = fork();
+	if (pid == 0)
 	{
-		ft_printf("%s\n", *(path + i));
-		free(*(path + i ));
-		i++;
+		while (data.path && *(data.path + i))
+		{
+			tmp = ft_strjoin(*(data.path + i), "/");
+			tmp = ft_strjoin(tmp, argv[2]);
+			execve(tmp, &argv[2], env);
+			free(tmp);
+			i++;
+		}
 	}
-	free(path);
+	else
+	{
+		wait(&pid);
+		while (data.path && *(data.path + i))
+			free(*(data.path + i++));
+	}
+	free(data.path);
 	return (0);
 }
