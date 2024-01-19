@@ -6,36 +6,40 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/19 14:08:42 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/19 14:57:52 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	**ft_getenv(char **env, char *var)
+static char	**ft_getenv(char **env, char *var)
 {
-	size_t	i;
 	size_t	size;
 
 	if (!env || !var)
 		return (0);
 	size = ft_strlen(var);
-	i = 0;
-	while (*(env + i) && ft_strncmp(*(env + i), var, size))
-		i++;
-	if (!*(env + i))
+	while (*env && ft_strncmp(*env, var, size))
+		env++;
+	if (!(*env))
 		return (0);
-	return (ft_split(*(env + i) + size + 1, ':'));
+	return (ft_split(*env + size + 1, ':'));
 }
 
-static void	getcmds(t_data **data, char **args)
+static void	getcmd(t_data **data, char *args)
 {
-	size_t	i;
+	t_cmd	*cmd;
+	char	**splited;
 
-	if (!args)
+	if (!data || !args)
 		return ;
-	i = 0;
-	pipex_lstadd_back(&((*data)-> cmds), *(args + i++));
+	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
+	if (!cmd)
+		return ;
+	splited = ft_split(args, ' ');
+	cmd -> flags = splited;
+	cmd -> bin = *splited;
+	(*data) -> cmd = cmd;
 }
 
 static void	execcmd(t_data *data, char **env)
@@ -54,9 +58,12 @@ static void	execcmd(t_data *data, char **env)
 		while (data -> path && *(data -> path + i))
 		{
 			tmp = ft_strjoin(*(data -> path + i++), "/");
-			path = ft_strjoin(tmp, data -> cmds -> bin);
+			path = ft_strjoin(tmp, data -> cmd -> bin);
 			if (access(path, F_OK && X_OK) == 0)
-				execve(path, data -> cmds -> flags, env);
+			{
+				ft_printf("\033[0;92m%s\033[0;m\n", path);
+				execve(path, data -> cmd -> flags, env);
+			}
 			free(tmp);
 			free(path);
 		}
@@ -65,29 +72,43 @@ static void	execcmd(t_data *data, char **env)
 		waitpid(pid, 0, 0);
 }
 
+static void	erasecmd(t_cmd *cmd)
+{
+	size_t	i;
+
+	if (!cmd)
+		return ;
+	i = 0;
+	while (*(cmd -> flags + i))
+		free(*(cmd -> flags + i++ ));
+	free(cmd -> flags);
+	free(cmd);
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	int		i;
 	t_data	*data;
 
-	if (argc < 2 || argv[1] == (void *)0)
+	if (argc < 5)
 		return (1);
 	data = (t_data *) ft_calloc(1, sizeof(t_data));
 	if (!data)
 		return (-1);
 	data -> path = ft_getenv(env, "PATH");
-	i = 1;
-	while (i < argc)
+	data -> input = argv[1];
+	data -> output = argv[argc - 1];
+	i = 2;
+	while (i < argc - 1)
 	{
-		getcmds(&data, &argv[i++]);
+		getcmd(&data, argv[i++]);
 		execcmd(data, env);
-		pipex_lstclear(&(data -> cmds));
+		erasecmd(data -> cmd);
 	}
 	i = 0;
 	while (*(data -> path + i))
 		free(*(data -> path + i++));
 	free(data -> path);
-	pipex_lstclear(&(data -> cmds));
 	free(data);
 	return (0);
 }

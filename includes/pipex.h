@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/19 13:45:16 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/19 14:38:15 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,21 +28,19 @@
 typedef struct s_cmd	t_cmd;
 typedef struct s_data	t_data;
 
-struct s_data
-{
-	char	**path;
-	t_cmd	*cmds;
-	int		fds[2];
-};
-
 struct s_cmd
 {
 	char	*bin;
 	char	**flags;
-	t_cmd	*next;
 };
 
-void	pipex_lstadd_back(t_cmd **cmds, char *args);
-void	pipex_lstclear(t_cmd **cmds);
+struct s_data
+{
+	char	**path;
+	char	*input;
+	char	*output;
+	t_cmd	*cmd;
+	int		fds[2];
+};
 
 #endif

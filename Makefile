@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/01/19 10:41:24 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/01/19 14:39:09 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,8 +19,7 @@ RESET				= $(shell tput sgr0)
 
 NAME				= pipex
 
-FILES				= pipex.c \
-					  pipex_utils.c
+FILES				= pipex.c
 
 LIBS				= $(LIBFTXDIR)/libftx.a
 
