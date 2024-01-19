@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/18 15:58:41 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/19 13:45:16 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,12 @@ struct s_data
 
 struct s_cmd
 {
-	char	*cmd;
-	char	*flags;
+	char	*bin;
+	char	**flags;
 	t_cmd	*next;
 };
+
+void	pipex_lstadd_back(t_cmd **cmds, char *args);
+void	pipex_lstclear(t_cmd **cmds);
 
 #endif
