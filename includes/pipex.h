@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/20 21:04:12 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/21 19:25:39 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,9 @@ struct s_data
 	int		fdin;
 	int		fdout;
 	t_cmd	*cmd;
-	int		argc;	
 	char	**argv;
 	char	**envp;
 	pid_t	pidin;
-	pid_t	pidmid;
 	pid_t	pidout;
 	int		fds[2];
 };
@@ -54,5 +52,17 @@ enum e_pipe
 	PIPE_OUT,
 	PIPE_IN
 };
+
+enum e_signal
+{
+	INFILE,
+	OUTFILE
+};
+void	get_command(t_data **data, char *args);
+void	execute_command(t_data *data);
+void	erase_command(t_cmd *cmd);
+void	erase_data(t_data *data);
+void	ft_error(t_data *data, char *bin, char *error, int status);
+void	child(t_data *data, int signal, int fdin[], char *argv);
 
 #endif

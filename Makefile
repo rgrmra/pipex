@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/01/20 16:38:05 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/01/21 19:43:13 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,8 @@ RESET				= $(shell tput sgr0)
 
 NAME				= pipex
 
-FILES				= pipex.c
+FILES				= pipex.c \
+					  pipex_utils.c
 
 LIBS				= $(LIBFTXDIR)/libftx.a
 
@@ -35,7 +36,6 @@ OBJS_BONUS			= $(FILES:%.c=$(OBJSDIR)/bonus/%_bonus.o)
 INCLUDES			= -I ./includes -I ./libs/libftx/includes
 
 COMPILER			= cc
-#CFLAGS				= -g3
 CFLAGS				= -Wall -Wextra -Werror -g3
 MESSAGE				= mandatory
 
