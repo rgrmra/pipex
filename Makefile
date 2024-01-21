@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/01/19 14:39:09 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/01/20 16:38:05 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ OBJS_BONUS			= $(FILES:%.c=$(OBJSDIR)/bonus/%_bonus.o)
 INCLUDES			= -I ./includes -I ./libs/libftx/includes
 
 COMPILER			= cc
+#CFLAGS				= -g3
 CFLAGS				= -Wall -Wextra -Werror -g3
 MESSAGE				= mandatory
 

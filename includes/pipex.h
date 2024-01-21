@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/19 14:38:15 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/20 21:04:12 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,22 @@ struct s_cmd
 struct s_data
 {
 	char	**path;
-	char	*input;
-	char	*output;
+	int		fdin;
+	int		fdout;
 	t_cmd	*cmd;
+	int		argc;	
+	char	**argv;
+	char	**envp;
+	pid_t	pidin;
+	pid_t	pidmid;
+	pid_t	pidout;
 	int		fds[2];
+};
+
+enum e_pipe
+{
+	PIPE_OUT,
+	PIPE_IN
 };
 
 #endif
