@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_utils.c                                      :+:      :+:    :+:   */
+/*   pipex_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/21 20:33:39 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/22 22:21:05 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 void	erase_command(t_cmd *cmd)
 {
@@ -54,22 +54,29 @@ void	ft_error(t_data *data, char *bin, char *error, int status)
 	exit(status);
 }
 
-void	child(t_data *data, int signal, int fds[], char *argv)
+void	child(t_data *data, int signal, int fds1[], int fds2[])
 {
 	if (signal == INFILE)
 	{
-		dup2(fds[PIPE_IN], STDOUT_FILENO);
-		close(fds[PIPE_OUT]);
+		dup2(fds1[PIPE_IN], STDOUT_FILENO);
+		close(fds1[PIPE_OUT]);
 		dup2(data -> fdin, STDIN_FILENO);
 		close(data -> fdin);
 	}
 	else if (signal == OUTFILE)
 	{
-		dup2(fds[PIPE_OUT], STDIN_FILENO);
-		close(fds[PIPE_IN]);
+		dup2(fds1[PIPE_OUT], STDIN_FILENO);
+		close(fds1[PIPE_IN]);
 		dup2(data -> fdout, STDOUT_FILENO);
 		close(data -> fdout);
 	}
-	get_command(&data, argv);
+	else if (signal == MIDFILE)
+	{
+		dup2(fds1[PIPE_OUT], STDIN_FILENO);
+		close(fds1[PIPE_IN]);
+		dup2(fds2[PIPE_IN], STDOUT_FILENO);
+		close(fds2[PIPE_OUT]);
+	}
+	get_command(&data, *(data -> argv));
 	execute_command(data);
 }

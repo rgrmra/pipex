@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   pipex_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 18:27:15 by rde-mour         ###   ########.org.br   */
+/*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
+/*   Updated: 2024/01/22 22:20:04 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#ifndef PIPEX_BONUS_H
+# define PIPEX_BONUS_H
 
 # include <errno.h>
 # include <fcntl.h>
@@ -40,11 +40,14 @@ struct s_data
 	int		fdin;
 	int		fdout;
 	t_cmd	*cmd;
+	int		cmdnbr;
+	int		argc;
 	char	**argv;
 	char	**envp;
 	pid_t	pidin;
+	pid_t	pidmid;
 	pid_t	pidout;
-	int		fds[2];
+	int		fds1[100][2];
 };
 
 enum e_pipe
@@ -56,14 +59,15 @@ enum e_pipe
 enum e_signal
 {
 	INFILE,
-	OUTFILE
+	OUTFILE,
+	MIDFILE
 };
+
 void	get_command(t_data **data, char *args);
 void	execute_command(t_data *data);
 void	erase_command(t_cmd *cmd);
 void	erase_data(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
-void	child(t_data *data, int signal, int fdin[], char *argv);
-void	ft_split_quotte(char *str, char ***splitted);
+void	child(t_data *data, int signal, int fds1[][]);
 
 #endif
