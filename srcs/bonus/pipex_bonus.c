@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 22:21:48 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/24 20:46:20 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,41 +75,41 @@ static int	pipex(t_data *data)
 {
 	int	status;
 
-	if (pipe(data -> fds1))
+	status = 0;
+	if (pipe(data -> fds1[data -> cmdnbr]))
 		ft_error(data, "pipe", "Failed to initiate", 1);
 	data -> argv++;
-	ft_putendl_fd(*(data -> argv), 2);
 	data -> pidin = fork();
 	if (data -> pidin < 0)
 		ft_error(data, "fork", "Failed to initiate", 1);
 	if (data -> pidin == 0)
-		child(data, INFILE, data -> fds1, 0);
-	while (data -> cmdnbr++ < data -> argc - 4)
+		child(data, INFILE, data -> fds1[data -> cmdnbr], 0);
+	while (data -> cmdnbr++ < data -> argc)
 	{
+		if (pipe(data -> fds1[data -> cmdnbr]))
+			ft_error(data, "pipe", "Failed to iniate", 100);
 		data -> argv++;
-		ft_putendl_fd(*(data -> argv), 2);
 		data -> pidmid = fork();
 		if (data -> pidmid < 0)
 			ft_error(data, "fork", "Failed to initiate", 0);
-		if (data -> pidmid == 0 && data -> cmdnbr % 2 == 1)
-			child(data, MIDFILE, data -> fds1, data -> fds2);
-		else if (data -> pidmid == 0 && data -> cmdnbr % 2 == 0)
-			child(data, MIDFILE, data -> fds2, data -> fds1);
-		waitpid(data -> pidmid, 0, 0);
+		if (data -> pidmid == 0 && data -> cmdnbr == data -> argc)
+			child(data, OUTFILE, data -> fds1[data -> cmdnbr - 1], 0);
+		else if (data -> pidmid == 0)
+			child(data, MIDFILE, data -> fds1[data -> cmdnbr - 1], data -> fds1[data -> cmdnbr]);
+		close(data -> fds1[data -> cmdnbr - 1][PIPE_IN]);
+		close(data -> fds1[data -> cmdnbr - 1][PIPE_OUT]);
 	}
-	data -> argv++;
-	ft_putendl_fd(*(data -> argv), 2);
-	data -> pidout = fork();
-	if (data -> pidout < 0)
-		ft_error(data, "fork", "Failed to initiate", 1);
-	if (data -> pidout == 0)
-		child(data, OUTFILE, data -> fds1, 0);
-	close(data -> fds1[PIPE_IN]);
-	close(data -> fds1[PIPE_OUT]);
-	close(data -> fds2[PIPE_IN]);
-	close(data -> fds2[PIPE_OUT]);
+	//data -> argv++;
+	//data -> pidout = fork();
+	//if (data -> pidout < 0)
+	//	ft_error(data, "fork", "Failed to initiate", 1);
+	//if (data -> pidout == 0)
+	//	child(data, OUTFILE, data -> fds1[data -> cmdnbr -1], 0);
+	//close(data -> fds1[data -> cmdnbr - 1][PIPE_IN]);
+	//close(data -> fds1[data -> cmdnbr - 1][PIPE_OUT]);
 	waitpid(data -> pidin, 0, 0);
-	waitpid(data -> pidout, &status, 0);
+	waitpid(data -> pidmid, &status, 0);
+	//waitpid(data -> pidout, &status, 0);
 	erase_data(data);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
@@ -127,7 +127,8 @@ int	main(int argc, char **argv, char **envp)
 		ft_error(0, "pipex", "Failed to allocate memory", 1);
 	data -> path = ft_getenv(envp, "PATH");
 	data -> cmdnbr = 1;
-	data -> argc = argc;
+	data -> argc = argc - 3;
+	ft_printf("%d\n", argc);
 	data -> argv = (argv + 1);
 	data -> envp = envp;
 	data -> fdin = open(argv[1], O_RDONLY, 0644);

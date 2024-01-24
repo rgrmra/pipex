@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 22:20:04 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/23 19:08:18 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,6 @@ void	execute_command(t_data *data);
 void	erase_command(t_cmd *cmd);
 void	erase_data(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
-void	child(t_data *data, int signal, int fds1[][]);
+void	child(t_data *data, int signal, int fds1[], int fds2[]);
 
 #endif
