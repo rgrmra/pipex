@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/01/22 19:10:32 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/01/25 14:33:50 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,8 @@ OBJS				= $(FILES:%.c=$(OBJSDIR)/%.o)
 SRCS_BONUS			= $(FILES:%.c=$(SRCSDIR)/bonus/%_bonus.c)
 OBJS_BONUS			= $(FILES:%.c=$(OBJSDIR)/bonus/%_bonus.o)
 
+DELETE				= $(OBJS_BONUS)
+
 INCLUDES			= -I ./includes -I ./libs/libftx/includes
 
 COMPILER			= cc
@@ -50,6 +52,7 @@ endif
 all:				$(NAME)
 
 $(NAME):			$(LIBS) $(OBJS)
+					@rm -rf $(DELETE)
 					@$(COMPILER) $(CFLAGS) $(OBJS) $(LIBS) $(INCLUDES) -o $(NAME)
 					@echo "$(BLUE)Compiled $(NAME) successfully$(RESET)"
 

@@ -6,77 +6,114 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/24 21:11:47 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/25 20:39:19 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	erase_command(t_cmd *cmd)
-{
-	size_t	i;
-
-	if (!cmd)
-		return ;
-	i = 0;
-	if (cmd -> flags)
-		while (*(cmd -> flags + i))
-			free(*(cmd -> flags + i++));
-	if (cmd -> flags)
-		free(cmd -> flags);
-	free(cmd);
-	cmd = 0;
-}
-
-void	erase_data(t_data *data)
-{
-	size_t	i;
-
-	i = 0;
-	if (!data)
-		return ;
-	while (*(data -> path + i))
-		free(*(data -> path + i++));
-	if (data -> cmd)
-		erase_command(data -> cmd);
-	free(data -> path);
-	free(data);
-	data = 0;
-}
-
 void	ft_error(t_data *data, char *bin, char *error, int status)
 {
 	dup2(STDERR_FILENO, STDOUT_FILENO);
 	ft_printf("pipex: %s: %s\n", bin, error);
-	if (status == 0)
+	dup2(STDOUT_FILENO, STDERR_FILENO);
+	if (status == 0 && data -> fdin > -1)
 		return ;
 	erase_data(data);
 	exit(status);
 }
 
-void	child(t_data *data, int signal, int fds1[], int fds2[])
+static void	get_command(t_data **data, char *args)
+{
+	t_cmd	*cmd;
+	char	**splitted;
+
+	if (!data || !args)
+		return ;
+	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
+	if (!cmd)
+		return ;
+	ft_split_quotte(ft_strdup(args), &splitted);
+	cmd -> flags = splitted;
+	cmd -> bin = *splitted;
+	(*data)-> cmd = cmd;
+}
+
+static void	execute_command(t_data *data)
+{
+	int		i;
+	char	*tmp;
+	char	*path;
+
+	i = 0;
+	get_command(&data, *(data -> argv + data -> cmdnbr));
+	while (data -> path && *(data -> path + i))
+	{
+		tmp = ft_strjoin(*(data -> path + i++), "/");
+		path = ft_strjoin(tmp, data -> cmd -> bin);
+		free(tmp);
+		if (path && access(path, F_OK && X_OK) == 0)
+		{
+			if (execve(path, data -> cmd -> flags, data -> envp) < 0)
+			{
+				free(path);
+				ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+			}
+		}
+		free(path);
+	}
+	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK && X_OK) == 0)
+		if (execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
+			ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+	ft_error(data, data -> cmd -> bin, "command not found", 127);
+}
+
+void	child(t_data *data, int signal)
 {
 	if (signal == INFILE)
 	{
-		dup2(fds1[PIPE_IN], STDOUT_FILENO);
-		close(fds1[PIPE_OUT]);
+		dup2(data -> fds[data -> cmdnbr][PIPE_IN], STDOUT_FILENO);
 		dup2(data -> fdin, STDIN_FILENO);
-		close(data -> fdin);
+		close_fds(data -> fds[data -> cmdnbr]);
 	}
 	else if (signal == OUTFILE)
 	{
-		dup2(fds1[PIPE_OUT], STDIN_FILENO);
-		close(fds1[PIPE_IN]);
+		dup2(data -> fds[data -> cmdnbr - 1][PIPE_OUT], STDIN_FILENO);
+		close_fds(data -> fds[data -> cmdnbr - 1]);
 		dup2(data -> fdout, STDOUT_FILENO);
-		close(data -> fdout);
 	}
 	else if (signal == MIDFILE)
 	{
-		dup2(fds1[PIPE_OUT], STDIN_FILENO);
-		close(fds1[PIPE_IN]);
-		dup2(fds2[PIPE_IN], STDOUT_FILENO);
-		close(fds2[PIPE_OUT]);
+		dup2(data -> fds[data -> cmdnbr - 1][PIPE_OUT], STDIN_FILENO);
+		close_fds(data -> fds[data -> cmdnbr - 1]);
+		dup2(data -> fds[data -> cmdnbr][PIPE_IN], STDOUT_FILENO);
+		close_fds(data -> fds[data -> cmdnbr]);
 	}
-	get_command(&data, *(data -> argv));
+	close(data -> fdin);
+	close(data -> fdout);
 	execute_command(data);
+}
+
+char	*here_doc(t_data *data)
+{
+	char	*tmp;
+
+	data -> flag = O_APPEND;
+	data -> fdin = open(HEREDOC, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (data -> fdin < 0)
+		ft_error(data, *(data -> argv + data -> argc + 1), strerror(errno), 1);
+	while (1)
+	{
+		ft_printf("> ");
+		tmp = get_next_line(STDIN_FILENO);
+		if (strncmp(tmp, data -> argv[2], ft_strlen(data -> argv[2] + 1)) == 0)
+			break ;
+		ft_putstr_fd(tmp, data -> fdin);
+		free(tmp);
+	}
+	free(tmp);
+	data -> argv++;
+	data -> argc--;
+	close(data -> fdin);
+	return (HEREDOC);
 }

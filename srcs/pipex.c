@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 18:30:05 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/25 17:26:50 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,21 +53,21 @@ void	execute_command(t_data *data)
 	{
 		tmp = ft_strjoin(*(data -> path + i++), "/");
 		path = ft_strjoin(tmp, data -> cmd -> bin);
-		if (path && access(path, F_OK && X_OK) == 0)
+		if (path && access(path, F_OK | X_OK) == 0)
 		{
 			if (execve(path, data -> cmd -> flags, data -> envp) < 0)
 			{
 				free(tmp);
 				free(path);
-				ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+				ft_error(data, data -> cmd -> bin, strerror(errno), 0);
 			}
 		}
 		free(tmp);
 		free(path);
 	}
-	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK && X_OK) == 0)
+	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK | X_OK) == 0)
 		if (execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-			ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+			ft_error(data, data -> cmd -> bin, strerror(errno), 0);
 	ft_error(data, data -> cmd -> bin, "command not found", 127);
 }
 
@@ -91,6 +91,8 @@ static int	pipex(t_data *data)
 	close(data -> fds[1]);
 	waitpid(data -> pidin, 0, 0);
 	waitpid(data -> pidout, &status, 0);
+	close(data -> fdin);
+	close(data -> fdout);
 	erase_data(data);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));

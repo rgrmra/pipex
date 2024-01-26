@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/24 21:40:00 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/25 21:27:02 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 # include "ft_printf_bonus.h"
 # include "get_next_line.h"
 # include "libft.h"
+
+# define HEREDOC "/tmp/heredoc"
 
 typedef struct s_cmd	t_cmd;
 typedef struct s_data	t_data;
@@ -44,10 +46,10 @@ struct s_data
 	int		argc;
 	char	**argv;
 	char	**envp;
-	pid_t	pidin;
-	pid_t	pidmid;
-	pid_t	pidout;
-	int		fds1[100][2];
+	pid_t	pid;
+	int		status;
+	int		fds[100][2];
+	int		flag;
 };
 
 enum e_pipe
@@ -63,11 +65,11 @@ enum e_signal
 	MIDFILE
 };
 
-void	get_command(t_data **data, char *args);
-void	execute_command(t_data *data);
-void	erase_command(t_cmd *cmd);
+void	child(t_data *data, int signal);
+void	close_fds(int fds[]);
 void	erase_data(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
-void	child(t_data *data, int signal, int fds1[], int fds2[]);
+void	ft_split_quotte(char *str, char ***splitted);
+char	*here_doc(t_data *data);
 
 #endif

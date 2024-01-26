@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 18:27:15 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/25 15:30:08 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 # include <sys/wait.h>
 # include <unistd.h>
 # include "ft_printf_bonus.h"
-# include "get_next_line.h"
 # include "libft.h"
 
 typedef struct s_cmd	t_cmd;

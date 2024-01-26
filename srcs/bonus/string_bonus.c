@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/22 19:11:12 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/25 21:27:21 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,4 +61,10 @@ void	ft_split_quotte(char *str, char ***splitted)
 	while (*(*(splitted) + i))
 		ft_strrplc(*(*(splitted) + i++), '\a', ' ');
 	free(str);
+}
+
+void	close_fds(int fds[])
+{
+	close(fds[PIPE_IN]);
+	close(fds[PIPE_OUT]);
 }
