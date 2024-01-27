@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 12:26:46 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 19:51:46 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ void	ft_error(t_data *data, char *bin, char *error, int status)
 	dup2(STDERR_FILENO, STDOUT_FILENO);
 	ft_printf("pipex: %s: %s\n", bin, error);
 	dup2(STDOUT_FILENO, STDERR_FILENO);
-	if (status == 0 && data -> fdin > -1)
-		return ;
+	close_fds(data -> fds[data -> cmdnbr - 3]);
 	erase_data(data);
 	exit(status);
 }
@@ -57,30 +56,33 @@ static void	execute_command(t_data *data)
 			if (execve(path, data -> cmd -> flags, data -> envp) < 0)
 			{
 				free(path);
-				ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+				ft_error(data, data -> cmd -> bin, strerror(errno), 126);
 			}
 		}
 		free(path);
 	}
-	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK | F_OK) == 0)
+	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK) == 0)
 		if (execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-			ft_error(data, data -> cmd -> bin, strerror(errno), 127);
+			ft_error(data, data -> cmd -> bin, strerror(errno), 126);
 	ft_error(data, data -> cmd -> bin, "command not found", 127);
 }
 
 void	child(t_data *data, int signal)
 {
+	open_file(data, signal);
 	if (signal == INFILE)
 	{
 		dup2(data -> fds[data -> cmdnbr - 2][PIPE_IN], STDOUT_FILENO);
-		dup2(data -> fdin, STDIN_FILENO);
 		close_fds(data -> fds[data -> cmdnbr - 2]);
+		dup2(data -> fdin, STDIN_FILENO);
+		close(data -> fdin);
 	}
 	else if (signal == OUTFILE)
 	{
 		dup2(data -> fds[data -> cmdnbr - 3][PIPE_OUT], STDIN_FILENO);
 		close_fds(data -> fds[data -> cmdnbr - 3]);
 		dup2(data -> fdout, STDOUT_FILENO);
+		close(data -> fdout);
 	}
 	else if (signal == MIDFILE)
 	{
@@ -89,8 +91,6 @@ void	child(t_data *data, int signal)
 		dup2(data -> fds[data -> cmdnbr - 2][PIPE_IN], STDOUT_FILENO);
 		close_fds(data -> fds[data -> cmdnbr - 2]);
 	}
-	close(data -> fdin);
-	close(data -> fdout);
 	execute_command(data);
 }
 

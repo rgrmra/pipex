@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 12:29:57 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 19:22:24 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,9 @@ struct s_cmd
 struct s_data
 {
 	char	**path;
+	char	*infile;
 	int		fdin;
+	char	*outfile;
 	int		fdout;
 	t_cmd	*cmd;
 	int		cmdnbr;
@@ -72,5 +74,6 @@ void	alloc_fds(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
 void	ft_split_quotte(char *str, char ***splitted);
 char	*here_doc(t_data *data);
+void	open_file(t_data *data, int signal);
 
 #endif

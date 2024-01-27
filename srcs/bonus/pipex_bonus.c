@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 12:28:36 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 19:49:12 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,11 @@ void	erase_data(t_data *data)
 	data = 0;
 }
 
-static int	pipex(t_data *data, int status)
+static int	pipex(t_data *data)
 {
+	int	status;
+
+	status = 0;
 	while (data -> cmdnbr++ < data -> argc)
 	{
 		if (pipe(data -> fds[data -> cmdnbr - 2]))
@@ -84,21 +87,18 @@ static int	pipex(t_data *data, int status)
 			child(data, MIDFILE);
 		if (data -> cmdnbr > 2)
 			close_fds(data -> fds[data -> cmdnbr - 3]);
+		waitpid(data -> pid, &(data -> status), WUNTRACED);
 	}
-	waitpid(data -> pid, &(data -> status), 0);
 	close_fds(data -> fds[data -> cmdnbr - 3]);
-	close(data -> fdin);
-	close(data -> fdout);
 	erase_data(data);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
+	if (WIFEXITED(data -> status))
+		return (WEXITSTATUS(data -> status));
 	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_data	*data;
-	int		status;
 
 	if (argc < 5)
 		ft_error(0, "pipex", "Too few arguments", 1);
@@ -112,14 +112,9 @@ int	main(int argc, char **argv, char **envp)
 	data -> envp = envp;
 	data -> flag = O_TRUNC;
 	alloc_fds(data);
+	data -> infile = *(argv + 1);
+	data -> outfile = *(argv + argc - 1);
 	if (strncmp(argv[1], "here_doc", 9) == 0)
-		argv[1] = here_doc(data);
-	data -> fdin = open(argv[1], O_RDONLY, 0644);
-	if (data -> fdin < 0)
-		ft_error(data, argv[1], strerror(errno), 0);
-	data -> fdout = open(argv[argc - 1], data -> flag | O_RDWR | O_CREAT, 0644);
-	if (data -> fdout < 0)
-		ft_error(data, argv[argc - 1], strerror(errno), 1);
-	status = 0;
-	return (pipex(data, status));
+		data -> infile = here_doc(data);
+	return (pipex(data));
 }
