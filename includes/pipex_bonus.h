@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 21:27:02 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 10:55:43 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ struct s_data
 	int		status;
 	int		fds[100][2];
 	int		flag;
+	int		stderr;
 };
 
 enum e_pipe

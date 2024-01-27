@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 21:26:19 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 11:08:35 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	erase_data(t_data *data)
 	data = 0;
 }
 
-static int	pipex(t_data *data, int	status)
+static int	pipex(t_data *data, int status)
 {
 	while (data -> cmdnbr++ < data -> argc)
 	{
