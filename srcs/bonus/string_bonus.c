@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 21:27:21 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 12:13:04 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,22 @@ void	ft_split_quotte(char *str, char ***splitted)
 	while (*(*(splitted) + i))
 		ft_strrplc(*(*(splitted) + i++), '\a', ' ');
 	free(str);
+}
+
+void	alloc_fds(t_data *data)
+{
+	int	i;
+
+	data -> fds = (int **) ft_calloc(data -> argc, sizeof(int **));
+	if (!(data -> fds))
+		ft_error(data, "file descriptors", "Failed to allocate memory", 1);
+	i = 0;
+	while (i < data -> argc - 1)
+	{
+		data -> fds[i] = (int *) ft_calloc(2, sizeof(int));
+		if (!(data -> fds[i++]))
+			ft_error(data, "file descriptors", "Failed to allocate memory", 1);
+	}
 }
 
 void	close_fds(int fds[])

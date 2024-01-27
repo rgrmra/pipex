@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 10:55:43 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 12:29:57 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,8 @@ struct s_data
 	char	**envp;
 	pid_t	pid;
 	int		status;
-	int		fds[100][2];
+	int		**fds;
 	int		flag;
-	int		stderr;
 };
 
 enum e_pipe
@@ -69,6 +68,7 @@ enum e_signal
 void	child(t_data *data, int signal);
 void	close_fds(int fds[]);
 void	erase_data(t_data *data);
+void	alloc_fds(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
 void	ft_split_quotte(char *str, char ***splitted);
 char	*here_doc(t_data *data);

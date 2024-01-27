@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 11:08:35 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/27 12:28:36 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,14 @@ void	erase_data(t_data *data)
 	if (data -> cmd)
 		erase_command(data -> cmd);
 	if (data -> flag == O_APPEND)
-		unlink("/tmp/heredoc");
+		unlink(HEREDOC);
+	if (data -> fds)
+	{
+		i = 0;
+		while (data -> fds[i])
+			free(data -> fds[i++]);
+		free(data -> fds);
+	}
 	free(data -> path);
 	free(data);
 	data = 0;
@@ -64,8 +71,8 @@ static int	pipex(t_data *data, int status)
 {
 	while (data -> cmdnbr++ < data -> argc)
 	{
-		if (pipe(data -> fds[data -> cmdnbr]))
-			ft_error(data, "pipe", "Failed to iniate", 100);
+		if (pipe(data -> fds[data -> cmdnbr - 2]))
+			ft_error(data, "pipe", strerror(errno), errno);
 		data -> pid = fork();
 		if (data -> pid < 0)
 			ft_error(data, "fork", "Failed to initiate", 0);
@@ -76,10 +83,10 @@ static int	pipex(t_data *data, int status)
 		else if (data -> pid == 0)
 			child(data, MIDFILE);
 		if (data -> cmdnbr > 2)
-			close_fds(data -> fds[data -> cmdnbr - 1]);
+			close_fds(data -> fds[data -> cmdnbr - 3]);
 	}
 	waitpid(data -> pid, &(data -> status), 0);
-	close_fds(data -> fds[data -> cmdnbr - 1]);
+	close_fds(data -> fds[data -> cmdnbr - 3]);
 	close(data -> fdin);
 	close(data -> fdout);
 	erase_data(data);
@@ -104,12 +111,13 @@ int	main(int argc, char **argv, char **envp)
 	data -> argv = argv;
 	data -> envp = envp;
 	data -> flag = O_TRUNC;
+	alloc_fds(data);
 	if (strncmp(argv[1], "here_doc", 9) == 0)
 		argv[1] = here_doc(data);
 	data -> fdin = open(argv[1], O_RDONLY, 0644);
 	if (data -> fdin < 0)
 		ft_error(data, argv[1], strerror(errno), 0);
-	data -> fdout = open(argv[argc - 1], data -> flag | O_CREAT | O_RDWR, 0644);
+	data -> fdout = open(argv[argc - 1], data -> flag | O_RDWR | O_CREAT, 0644);
 	if (data -> fdout < 0)
 		ft_error(data, argv[argc - 1], strerror(errno), 1);
 	status = 0;
