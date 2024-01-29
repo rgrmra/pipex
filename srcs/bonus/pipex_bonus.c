@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 19:49:12 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/28 19:53:49 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static int	pipex(t_data *data)
 	while (data -> cmdnbr++ < data -> argc)
 	{
 		if (pipe(data -> fds[data -> cmdnbr - 2]))
-			ft_error(data, "pipe", strerror(errno), errno);
+			ft_error(data, "pipe", strerror(errno), 130);
 		data -> pid = fork();
 		if (data -> pid < 0)
 			ft_error(data, "fork", "Failed to initiate", 0);
@@ -87,13 +87,13 @@ static int	pipex(t_data *data)
 			child(data, MIDFILE);
 		if (data -> cmdnbr > 2)
 			close_fds(data -> fds[data -> cmdnbr - 3]);
-		waitpid(data -> pid, &(data -> status), WUNTRACED);
+		waitpid(data -> pid, &status, WUNTRACED);
 	}
 	close_fds(data -> fds[data -> cmdnbr - 3]);
 	erase_data(data);
-	if (WIFEXITED(data -> status))
-		return (WEXITSTATUS(data -> status));
-	return (0);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	return (status);
 }
 
 int	main(int argc, char **argv, char **envp)

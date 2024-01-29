@@ -6,54 +6,37 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 19:55:01 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/01/29 18:03:30 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	find_double_quotte(char **str)
-{
-	int	i;
-	int	c;
-
-	i = 0;
-	c = ' ';
-	while (*str && *(*(str) + i))
-	{
-		if (*(*(str) + i) == '\"' && c == '\a')
-			c = ' ';
-		else if (*(*(str) + i) == '\"' && c == ' ')
-			c = '\a';
-		if (*(*(str) + i) == ' ')
-			*(*(str) + i) = c;
-		else if (*(*(str) + i) == '\"')
-			*(*(str) + i) = ' ';
-		i++;
-	}
-}
-
-void	ft_split_quotte(char *str, char ***splitted)
+void	ft_split_quotte(char *tmp, char ***splitted)
 {
 	int		i;
+	char	sign;
 
-	find_double_quotte(&str);
 	i = 0;
-	while (*str && *(str + i))
+	sign = 0;
+	while (tmp && *(tmp + i))
 	{
-		if ((*(str + i) == '\'' && *(str + i + 1) == ' ')
-			|| (*(str + i) == '\'' && *(str + i + 1) == '\0')
-			|| (i > 0 && *(str + i - 1) == ' ' && *(str + i) == '\'')
-			|| (i == 0 && *(str + i) == '\''))
-			*(str + i) = '\"';
+		if (sign && *(tmp + i) == sign)
+			sign = 0;
+		if (!sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
+		{
+			sign = *(tmp + i);
+			*(tmp + i) = ' ';
+		}
+		else if (sign && *(tmp + i) == ' ')
+			*(tmp + i) = 0x1A;
 		i++;
 	}
-	find_double_quotte(&str);
-	*splitted = ft_split(str, ' ');
+	*splitted = ft_split(tmp, ' ');
 	i = 0;
 	while (*(*(splitted) + i))
-		ft_strrplc(*(*(splitted) + i++), '\a', ' ');
-	free(str);
+		ft_strrplc(*(*(splitted) + i++), 0x1A, ' ');
+	free(tmp);
 }
 
 void	alloc_fds(t_data *data)
@@ -84,12 +67,19 @@ void	open_file(t_data *data, int signal)
 	{
 		data -> fdin = open(data -> infile, O_RDONLY, 0644);
 		if (data -> fdin < 0)
+		{
+			close_fds(data -> fds[data -> cmdnbr - 2]);
 			ft_error(data, data -> infile, strerror(errno), 1);
+		}
 		return ;
 	}
 	if (signal != OUTFILE)
 		return ;
 	data->fdout = open(data -> outfile, data -> flag | O_RDWR | O_CREAT, 0644);
 	if (data -> fdout < 0)
+	{
+		close_fds(data -> fds[data -> cmdnbr - 2]);
+		close_fds(data -> fds[data -> cmdnbr - 3]);
 		ft_error(data, data -> outfile, strerror(errno), 1);
+	}
 }
