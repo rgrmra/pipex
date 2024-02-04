@@ -6,70 +6,87 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 17:30:05 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 15:58:18 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	erase_command(t_cmd *cmd)
-{
-	size_t	i;
-
-	if (!cmd)
-		return ;
-	i = 0;
-	if (cmd -> flags)
-		while (*(cmd -> flags + i))
-			free(*(cmd -> flags + i++));
-	if (cmd -> flags)
-		free(cmd -> flags);
-	free(cmd);
-	cmd = 0;
-}
-
-void	erase_data(t_data *data)
-{
-	size_t	i;
-
-	i = 0;
-	if (!data)
-		return ;
-	while (*(data -> path + i))
-		free(*(data -> path + i++));
-	if (data -> cmd)
-		erase_command(data -> cmd);
-	free(data -> path);
-	free(data);
-	data = 0;
-}
-
 void	ft_error(t_data *data, char *bin, char *error, int status)
 {
 	dup2(STDERR_FILENO, STDOUT_FILENO);
+	if (!bin)
+		bin = "";
 	ft_printf("pipex: %s: %s\n", bin, error);
-	if (status == 0 && data -> fdin > -1)
-		return ;
-	erase_data(data);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+	if (data && data -> fds && status >= 2)
+		close_fds(data -> fds[data -> cmdnbr - 3]);
+	if (data)
+		erase_data(data);
 	exit(status);
 }
 
-void	child(t_data *data, int signal, int fds[], char *argv)
+static void	get_command(t_data **data, char *args)
+{
+	t_cmd	*cmd;
+	char	**splitted;
+
+	if (!data || !args)
+		return ;
+	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
+	if (!cmd)
+		return ;
+	ft_split_quotte(ft_strdup(args), &splitted);
+	cmd -> flags = splitted;
+	cmd -> bin = *splitted;
+	(*data)-> cmd = cmd;
+}
+
+static void	execute_command(t_data *data)
+{
+	int		i;
+	char	*path;
+
+	i = 0;
+	path = 0;
+	get_command(&data, *(data -> argv + data -> cmdnbr));
+	while (data -> path && *(data -> path + i))
+	{
+		ft_sprintf(&path, "%s/%s", *(data -> path + i++), data -> cmd -> bin);
+		if (path && access(path, F_OK | X_OK) == 0
+			&& execve(path, data -> cmd -> flags, data -> envp) < 0)
+		{
+			free(path);
+			ft_error(data, data -> cmd -> bin, strerror(errno), 126);
+		}
+		free(path);
+	}
+	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK) == 0
+		&& execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
+		ft_error(data, data -> cmd -> bin, strerror(errno), 126);
+	if (data -> cmd -> bin && *(data -> cmd -> bin) == '/')
+		ft_error(data, data -> cmd -> bin, "No such file or directory", 0);
+	ft_error(data, data -> cmd -> bin, "command not found", 127);
+}
+
+void	child(t_data *data, int signal)
 {
 	if (signal == INFILE)
 	{
-		dup2(fds[PIPE_IN], STDOUT_FILENO);
+		open_file(data, signal);
+		dup2(data -> fds[data -> cmdnbr - 2][PIPE_IN], STDOUT_FILENO);
+		close_fds(data -> fds[data -> cmdnbr - 2]);
 		dup2(data -> fdin, STDIN_FILENO);
+		close(data -> fdin);
 	}
 	else if (signal == OUTFILE)
 	{
-		dup2(fds[PIPE_OUT], STDIN_FILENO);
+		open_file(data, signal);
+		dup2(data -> fds[data -> cmdnbr - 3][PIPE_OUT], STDIN_FILENO);
+		close_fds(data -> fds[data -> cmdnbr - 3]);
 		dup2(data -> fdout, STDOUT_FILENO);
+		close(data -> fdout);
 	}
-	close(fds[PIPE_IN]);
-	close(fds[PIPE_OUT]);
-	close(data -> fdin);
-	close(data -> fdout);
-	get_command(&data, argv);
 	execute_command(data);
 }

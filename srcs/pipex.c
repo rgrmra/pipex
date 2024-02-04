@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 17:26:50 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 15:57:45 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,98 +26,90 @@ static char	**ft_getenv(char **env, char *var)
 	return (ft_split(*env + size + 1, ':'));
 }
 
-void	get_command(t_data **data, char *args)
+static void	erase_command(t_cmd *cmd)
 {
-	t_cmd	*cmd;
-	char	**splitted;
+	size_t	i;
 
-	if (!data || !args)
-		return ;
-	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
 	if (!cmd)
 		return ;
-	ft_split_quotte(ft_strdup(args), &splitted);
-	cmd -> flags = splitted;
-	cmd -> bin = *splitted;
-	(*data)-> cmd = cmd;
+	i = 0;
+	if (cmd -> flags)
+		while (*(cmd -> flags + i))
+			free(*(cmd -> flags + i++));
+	if (cmd -> flags)
+		free(cmd -> flags);
+	free(cmd);
+	cmd = 0;
 }
 
-void	execute_command(t_data *data)
+void	erase_data(t_data *data)
 {
-	int		i;
-	char	*tmp;
-	char	*path;
+	size_t	i;
 
 	i = 0;
-	while (data -> path && *(data -> path + i))
+	if (!data)
+		return ;
+	while (*(data -> path + i))
+		free(*(data -> path + i++));
+	if (data -> cmd)
+		erase_command(data -> cmd);
+	if (data -> fds)
 	{
-		tmp = ft_strjoin(*(data -> path + i++), "/");
-		path = ft_strjoin(tmp, data -> cmd -> bin);
-		if (path && access(path, F_OK | X_OK) == 0)
-		{
-			if (execve(path, data -> cmd -> flags, data -> envp) < 0)
-			{
-				free(tmp);
-				free(path);
-				ft_error(data, data -> cmd -> bin, strerror(errno), 0);
-			}
-		}
-		free(tmp);
-		free(path);
+		i = 0;
+		while (data -> fds[i])
+			free(data -> fds[i++]);
+		free(data -> fds);
 	}
-	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK | X_OK) == 0)
-		if (execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-			ft_error(data, data -> cmd -> bin, strerror(errno), 0);
-	ft_error(data, data -> cmd -> bin, "command not found", 127);
+	free(data -> path);
+	free(data);
+	data = 0;
 }
 
 static int	pipex(t_data *data)
 {
 	int	status;
 
-	if (pipe(data -> fds))
-		ft_error(data, "pipe", "Failed to initiate", 1);
-	data -> pidin = fork();
-	if (data -> pidin < 0)
-		ft_error(data, "fork", "Failed to initiate", 1);
-	if (data -> pidin == 0)
-		child(data, INFILE, data -> fds, data -> argv[2]);
-	data -> pidout = fork();
-	if (data -> pidout < 0)
-		ft_error(data, "fork", "Failed to initiate", 1);
-	if (data -> pidout == 0)
-		child(data, OUTFILE, data -> fds, data -> argv[3]);
-	close(data -> fds[0]);
-	close(data -> fds[1]);
-	waitpid(data -> pidin, 0, 0);
-	waitpid(data -> pidout, &status, 0);
-	close(data -> fdin);
-	close(data -> fdout);
+	status = 0;
+	while (data -> cmdnbr++ < data -> argc)
+	{
+		if (pipe(data -> fds[data -> cmdnbr - 2]))
+			ft_error(data, "pipe", strerror(errno), 130);
+		data -> pid = fork();
+		if (data -> pid < 0)
+			ft_error(data, "fork", "Failed to initiate", 0);
+		if (data -> pid == 0 && data -> cmdnbr == 2)
+			child(data, INFILE);
+		if (data -> pid == 0 && data -> cmdnbr == data -> argc)
+			child(data, OUTFILE);
+		if (data -> cmdnbr > 2)
+			close_fds(data -> fds[data -> cmdnbr - 3]);
+		waitpid(data -> pid, &status, WUNTRACED);
+	}
+	close_fds(data -> fds[data -> cmdnbr - 3]);
 	erase_data(data);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
-	return (0);
+	return (status);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_data	*data;
 
-	if (argc != 5 && argc > 5)
-		ft_error(0, "pipex", "Too many arguments", 1);
-	else if (argc < 5)
+	if (argc < 5)
 		ft_error(0, "pipex", "Too few arguments", 1);
+	else if (argc > 5)
+		ft_error(0, "pipex", "Too many arguments", 1);
 	data = (t_data *) ft_calloc(1, sizeof(t_data));
 	if (!data)
 		ft_error(0, "pipex", "Failed to allocate memory", 1);
 	data -> path = ft_getenv(envp, "PATH");
+	data -> cmdnbr = 1;
+	data -> argc = argc - 2;
 	data -> argv = argv;
 	data -> envp = envp;
-	data -> fdin = open(argv[1], O_RDONLY, 0644);
-	if (data -> fdin < 0)
-		ft_error(data, argv[1], strerror(errno), 0);
-	data -> fdout = open(argv[argc - 1], O_TRUNC | O_CREAT | O_RDWR, 0644);
-	if (data -> fdout < 0)
-		ft_error(data, argv[argc - 1], strerror(errno), 1);
+	alloc_fds(data);
+	data -> infile = *(argv + 1);
+	data -> outfile = *(argv + argc - 1);
 	return (pipex(data));
 }

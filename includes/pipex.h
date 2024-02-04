@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/17 18:44:33 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/25 15:30:08 by rde-mour         ###   ########.org.br   */
+/*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
+/*   Updated: 2024/02/04 15:59:27 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # include <errno.h>
 # include <fcntl.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/types.h>
@@ -36,14 +35,18 @@ struct s_cmd
 struct s_data
 {
 	char	**path;
+	char	*infile;
 	int		fdin;
+	char	*outfile;
 	int		fdout;
 	t_cmd	*cmd;
+	int		cmdnbr;
+	int		argc;
 	char	**argv;
 	char	**envp;
-	pid_t	pidin;
-	pid_t	pidout;
-	int		fds[2];
+	pid_t	pid;
+	int		status;
+	int		**fds;
 };
 
 enum e_pipe
@@ -57,12 +60,13 @@ enum e_signal
 	INFILE,
 	OUTFILE
 };
-void	get_command(t_data **data, char *args);
-void	execute_command(t_data *data);
-void	erase_command(t_cmd *cmd);
+
+void	child(t_data *data, int signal);
+void	close_fds(int fds[]);
 void	erase_data(t_data *data);
+void	alloc_fds(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
-void	child(t_data *data, int signal, int fdin[], char *argv);
 void	ft_split_quotte(char *str, char ***splitted);
+void	open_file(t_data *data, int signal);
 
 #endif
