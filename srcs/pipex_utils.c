@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 15:58:18 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 17:45:26 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 
 void	ft_error(t_data *data, char *bin, char *error, int status)
 {
-	dup2(STDERR_FILENO, STDOUT_FILENO);
+	char	*message;
+	int		size;
+
 	if (!bin)
 		bin = "";
-	ft_printf("pipex: %s: %s\n", bin, error);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+	size = ft_sprintf(&message, "pipex: %s: %s\n", bin, error);
+	write(STDERR_FILENO, message, size);
 	if (data && data -> fds && status >= 2)
 		close_fds(data -> fds[data -> cmdnbr - 3]);
 	if (data)

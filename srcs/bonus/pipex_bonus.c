@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 15:37:42 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 17:52:09 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,18 +78,18 @@ static int	pipex(t_data *data)
 			ft_error(data, "pipe", strerror(errno), 130);
 		data -> pid = fork();
 		if (data -> pid < 0)
-			ft_error(data, "fork", "Failed to initiate", 0);
+			ft_error(data, "fork", "Failed to initiate", 1);
 		if (data -> pid == 0 && data -> cmdnbr == 2)
 			child(data, INFILE);
-		if (data -> pid == 0 && data -> cmdnbr == data -> argc)
+		else if (data -> pid == 0 && data -> cmdnbr == data -> argc)
 			child(data, OUTFILE);
 		else if (data -> pid == 0)
 			child(data, MIDFILE);
 		if (data -> cmdnbr > 2)
 			close_fds(data -> fds[data -> cmdnbr - 3]);
-		waitpid(data -> pid, &status, WUNTRACED);
 	}
 	close_fds(data -> fds[data -> cmdnbr - 3]);
+	waitpid(data -> pid, &status, 0);
 	erase_data(data);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));

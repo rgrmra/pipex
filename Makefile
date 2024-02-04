@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/01/25 14:33:50 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/02/04 17:49:17 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,7 @@ DELETE				= $(OBJS_BONUS)
 INCLUDES			= -I ./includes -I ./libs/libftx/includes
 
 COMPILER			= cc
-CFLAGS				= -Wall -Wextra -Werror -g3
+CFLAGS				= -Wall -Wextra -Werror -O2
 MESSAGE				= mandatory
 
 ifdef				WITH_BONUS
@@ -54,7 +54,7 @@ all:				$(NAME)
 $(NAME):			$(LIBS) $(OBJS)
 					@rm -rf $(DELETE)
 					@$(COMPILER) $(CFLAGS) $(OBJS) $(LIBS) $(INCLUDES) -o $(NAME)
-					@echo "$(BLUE)Compiled $(NAME) successfully$(RESET)"
+					@echo "$(BLUE)Compiled $(NAME) $(MESSAGE) successfully$(RESET)"
 
 $(OBJSDIR)/%.o:		$(SRCSDIR)/%.c
 					@mkdir -p $(@D)
