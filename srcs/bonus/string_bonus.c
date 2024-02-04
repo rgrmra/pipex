@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/29 18:03:30 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 14:20:54 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,11 @@ void	ft_split_quotte(char *tmp, char ***splitted)
 		if (sign && *(tmp + i) == sign)
 			sign = 0;
 		if (!sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
-		{
 			sign = *(tmp + i);
-			*(tmp + i) = ' ';
-		}
-		else if (sign && *(tmp + i) == ' ')
+		if (sign && *(tmp + i) == ' ')
 			*(tmp + i) = 0x1A;
+		if (sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
+			*(tmp + i) = ' ';
 		i++;
 	}
 	*splitted = ft_split(tmp, ' ');

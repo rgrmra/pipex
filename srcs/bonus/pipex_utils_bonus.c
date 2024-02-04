@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/28 20:11:05 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 15:11:31 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 void	ft_error(t_data *data, char *bin, char *error, int status)
 {
 	dup2(STDERR_FILENO, STDOUT_FILENO);
+	if (!bin)
+		bin = "";
 	ft_printf("pipex: %s: %s\n", bin, error);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
@@ -44,16 +46,14 @@ static void	get_command(t_data **data, char *args)
 static void	execute_command(t_data *data)
 {
 	int		i;
-	char	*tmp;
 	char	*path;
 
 	i = 0;
+	path = 0;
 	get_command(&data, *(data -> argv + data -> cmdnbr));
 	while (data -> path && *(data -> path + i))
 	{
-		tmp = ft_strjoin(*(data -> path + i++), "/");
-		path = ft_strjoin(tmp, data -> cmd -> bin);
-		free(tmp);
+		ft_sprintf(&path, "%s/%s", *(data -> path + i++), data -> cmd -> bin);
 		if (path && access(path, F_OK | X_OK) == 0
 			&& execve(path, data -> cmd -> flags, data -> envp) < 0)
 		{
@@ -62,9 +62,9 @@ static void	execute_command(t_data *data)
 		}
 		free(path);
 	}
-	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK) == 0)
-		if (execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-			ft_error(data, data -> cmd -> bin, strerror(errno), 126);
+	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK) == 0
+		&& execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
+		ft_error(data, data -> cmd -> bin, strerror(errno), 126);
 	if (data -> cmd -> bin && *(data -> cmd -> bin) == '/')
 		ft_error(data, data -> cmd -> bin, "No such file or directory", 0);
 	ft_error(data, data -> cmd -> bin, "command not found", 127);

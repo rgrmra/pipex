@@ -197,7 +197,7 @@ chmod 655 c
 chmod 000 d b
 
 echo -e "\n\033[0;93m23. Input file no permition:\033[0m"
-echo -e "\033[0;92m< a grep a | grep b > b && cat b\033[0m"
+echo -e "\033[0;92m< a grep a | grep b > b\033[0m"
 < c grep a | grep b > b
 echo $?
 ./pipex c grep\ a grep\ b d
@@ -207,7 +207,7 @@ sleep 1
 chmod 655 d b
 
 echo -e "\n\033[0;93m24. Null first command:\033[0m"
-echo -e "\033[0;92m< a "" | grep b > b && cat b\033[0m"
+echo -e "\033[0;92m< a \"\" | grep b > b && cat b\033[0m"
 < c "" | grep b > b
 echo $?
 ./pipex c "" grep\ b d
@@ -215,7 +215,7 @@ echo $?
 sleep 1
 
 echo -e "\n\033[0;93m25. Null secound command:\033[0m"
-echo -e "\033[0;92m< a grep a | "" b && cat b\033[0m"
+echo -e "\033[0;92m< a grep a | \"\" b && cat b\033[0m"
 < c grep b | "" > b
 echo $?
 cat b
@@ -225,7 +225,7 @@ cat d
 sleep 1
 
 echo -e "\n\033[0;93m26. Two null commands:\033[0m"
-echo -e "\033[0;92m< a "" | "" b && cat b\033[0m"
+echo -e "\033[0;92m< a \"\" | \"\" b && cat b\033[0m"
 < c "" | "" > b
 echo $?
 cat b
@@ -236,8 +236,8 @@ sleep 1
 
 chmod 000 c d b
 
-echo -e "\n\033[0;93m26. Two null commands and no permition files:\033[0m"
-echo -e "\033[0;92m< a "" | "" b && cat b\033[0m"
+echo -e "\n\033[0;93m27. Two null commands and no permition files:\033[0m"
+echo -e "\033[0;92m< a \"\" | \"\" b\033[0m"
 < c "" | "" > b
 echo $?
 ./pipex c "" "" d

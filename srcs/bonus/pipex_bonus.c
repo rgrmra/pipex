@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/28 19:53:49 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 15:37:42 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_data	*data;
 
-	if (argc < 5)
+	if ((argc < 6 && argv[1] && strncmp(argv[1], DOCNAME, 9) == 0) || argc < 5)
 		ft_error(0, "pipex", "Too few arguments", 1);
 	data = (t_data *) ft_calloc(1, sizeof(t_data));
 	if (!data)
@@ -114,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 	alloc_fds(data);
 	data -> infile = *(argv + 1);
 	data -> outfile = *(argv + argc - 1);
-	if (strncmp(argv[1], "here_doc", 9) == 0)
+	if (strncmp(*(argv + 1), DOCNAME, 9) == 0)
 		data -> infile = here_doc(data);
 	return (pipex(data));
 }

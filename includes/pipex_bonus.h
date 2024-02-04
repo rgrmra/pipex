@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/01/27 19:22:24 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/04 15:42:55 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # include <errno.h>
 # include <fcntl.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/types.h>
@@ -25,6 +24,7 @@
 # include "get_next_line.h"
 # include "libft.h"
 
+# define DOCNAME "here_doc"
 # define HEREDOC "/tmp/heredoc"
 
 typedef struct s_cmd	t_cmd;
