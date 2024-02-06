@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 15:59:05 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/06 18:42:11 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,22 @@ void	ft_split_quotte(char *tmp, char ***splitted)
 	int		i;
 	char	sign;
 
-	i = 0;
+	i = -1;
 	sign = 0;
-	while (tmp && *(tmp + i))
+	while (tmp && *(tmp + ++i))
 	{
 		if (sign && *(tmp + i) == sign)
-			sign = 0;
-		if (!sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
-			sign = *(tmp + i);
-		if (sign && *(tmp + i) == ' ')
-			*(tmp + i) = 0x1A;
-		if (sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
+		{
 			*(tmp + i) = ' ';
-		i++;
+			sign = 0;
+		}
+		else if (!sign && (*(tmp + i) == '\"' || *(tmp + i) == '\''))
+		{
+			sign = *(tmp + i);
+			*(tmp + i) = ' ';
+		}
+		else if (sign && *(tmp + i) == ' ')
+			*(tmp + i) = 0x1A;
 	}
 	*splitted = ft_split(tmp, ' ');
 	i = 0;
