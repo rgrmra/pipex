@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 17:52:09 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/09 14:20:40 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,11 @@ static int	pipex(t_data *data)
 			close_fds(data -> fds[data -> cmdnbr - 3]);
 	}
 	close_fds(data -> fds[data -> cmdnbr - 3]);
-	waitpid(data -> pid, &status, 0);
+	waitpid(data -> pid, &status, WUNTRACED);
 	erase_data(data);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	return (status);
+	if (((status) & 0x7f) == 0)
+		return (((status) & 0xff00) >> 8);
+	return ((status) & 0x7f);
 }
 
 int	main(int argc, char **argv, char **envp)

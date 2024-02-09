@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 17:45:02 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/09 15:50:13 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,26 @@ void	ft_error(t_data *data, char *bin, char *error, int status)
 		bin = "";
 	size = ft_sprintf(&message, "pipex: %s: %s\n", bin, error);
 	write(STDERR_FILENO, message, size);
-	if (data && data -> fds && status >= 2)
+	free(message);
+	if (data && data -> fds && status >= 2 && data -> cmdnbr - 2 > 0)
+		close_fds(data -> fds[data -> cmdnbr - 2]);
+	if (data && data -> fds && status >= 2 && data -> cmdnbr - 3 > 0)
 		close_fds(data -> fds[data -> cmdnbr - 3]);
 	if (data)
 		erase_data(data);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+	if (status == EACCES)
+		status = 126;
+	else if (status == ENOENT)
+		status = 127;
 	exit(status);
 }
 
 static void	get_command(t_data **data, char *args)
 {
+	int		fd;
 	t_cmd	*cmd;
 	char	**splitted;
 
@@ -42,6 +53,16 @@ static void	get_command(t_data **data, char *args)
 	cmd -> flags = splitted;
 	cmd -> bin = *splitted;
 	(*data)-> cmd = cmd;
+	if (!cmd -> bin)
+		return ;
+	fd = open(cmd -> bin, O_DIRECTORY | O_RDONLY, 0644);
+	if (fd != -1)
+	{
+		close(fd);
+		if (cmd -> bin && ft_strchr(cmd -> bin, '/'))
+			ft_error(*data, (*data)-> cmd -> bin, "Is a directory", 126);
+		ft_error(*data, (*data)-> cmd -> bin, "command not found", 127);
+	}
 }
 
 static void	execute_command(t_data *data)
@@ -59,15 +80,16 @@ static void	execute_command(t_data *data)
 			&& execve(path, data -> cmd -> flags, data -> envp) < 0)
 		{
 			free(path);
-			ft_error(data, data -> cmd -> bin, strerror(errno), 126);
+			ft_error(data, data -> cmd -> bin, strerror(errno), errno);
 		}
 		free(path);
 	}
-	if (data -> cmd -> bin && access(data -> cmd -> bin, F_OK) == 0
+	if (data -> cmd -> bin
+		&& access(data -> cmd -> bin, F_OK) == 0
 		&& execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-		ft_error(data, data -> cmd -> bin, strerror(errno), 126);
-	if (data -> cmd -> bin && *(data -> cmd -> bin) == '/')
-		ft_error(data, data -> cmd -> bin, "No such file or directory", 0);
+		ft_error(data, data -> cmd -> bin, strerror(errno), errno);
+	if (data -> cmd -> bin && ft_strchr(data -> cmd -> bin, '/'))
+		ft_error(data, data -> cmd -> bin, "No such file or directory", 127);
 	ft_error(data, data -> cmd -> bin, "command not found", 127);
 }
 

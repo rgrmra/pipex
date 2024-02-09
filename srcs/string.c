@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/06 18:42:11 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/07 21:22:48 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,11 @@ void	alloc_fds(t_data *data)
 
 void	close_fds(int fds[])
 {
+	if (!fds)
+		return ;
 	close(fds[PIPE_IN]);
 	close(fds[PIPE_OUT]);
+	fds = 0;
 }
 
 void	open_file(t_data *data, int signal)
