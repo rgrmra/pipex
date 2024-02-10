@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/09 15:50:13 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/09 22:11:34 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,9 +133,13 @@ char	*here_doc(t_data *data)
 	{
 		ft_printf("> ");
 		tmp = get_next_line(STDIN_FILENO);
-		if (tmp && strncmp(tmp, data -> argv[2], ft_strlen(tmp) - 1) == 0)
+		if (!tmp)
+			ft_putchar_fd('\n', STDOUT_FILENO);
+		ft_strrplc(tmp, '\n', '\0');
+		if (!tmp || (tmp && *tmp != '\n' &&
+			!(strncmp(tmp, data -> argv[2], ft_strlen(data -> argv[2]) + 1))))
 			break ;
-		ft_putstr_fd(tmp, data -> fdin);
+		ft_putendl_fd(tmp, data -> fdin);
 		free(tmp);
 	}
 	free(tmp);
