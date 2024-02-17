@@ -6,7 +6,7 @@
 #    By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/17 18:13:19 by rde-mour          #+#    #+#              #
-#    Updated: 2024/02/09 19:20:34 by rde-mour         ###   ########.org.br    #
+#    Updated: 2024/02/07 21:21:02 by rde-mour         ###   ########.org.br    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,8 +62,6 @@ $(OBJSDIR)/%.o:		$(SRCSDIR)/%.c
 					@echo "$(GREEN)Compiled $(RESET)$(notdir $<)"
 
 $(LIBS):
-					@git submodule sync $(LIBFTXDIR)
-					@git submodule update --init --force --remote $(LIBFTXDIR)
 					@make -sC $(LIBFTXDIR)
 
 bonus:

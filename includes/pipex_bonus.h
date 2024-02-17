@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 19:03:07 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/04 15:42:55 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/16 20:22:01 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	close_fds(int fds[]);
 void	erase_data(t_data *data);
 void	alloc_fds(t_data *data);
 void	ft_error(t_data *data, char *bin, char *error, int status);
-void	ft_split_quotte(char *str, char ***splitted);
+void	ft_split_quote(char *str, char ***splitted);
 char	*here_doc(t_data *data);
 void	open_file(t_data *data, int signal);
 

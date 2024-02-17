@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 18:32:45 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/09 14:20:40 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/16 20:19:11 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 	alloc_fds(data);
 	data -> infile = *(argv + 1);
 	data -> outfile = *(argv + argc - 1);
-	if (strncmp(*(argv + 1), DOCNAME, 9) == 0)
+	if (ft_strncmp(*(argv + 1), DOCNAME, 9) == 0)
 		data -> infile = here_doc(data);
 	return (pipex(data));
 }

@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/09 15:56:36 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/16 20:22:45 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static void	get_command(t_data **data, char *args)
 	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
 	if (!cmd)
 		return ;
-	ft_split_quotte(ft_strdup(args), &splitted);
+	ft_split_quote(ft_strdup(args), &splitted);
 	cmd -> flags = splitted;
 	cmd -> bin = *splitted;
 	(*data)-> cmd = cmd;

@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/09 22:11:34 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/16 20:21:08 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static void	get_command(t_data **data, char *args)
 	cmd = (t_cmd *) ft_calloc(1, sizeof(t_cmd));
 	if (!cmd)
 		return ;
-	ft_split_quotte(ft_strdup(args), &splitted);
+	ft_split_quote(ft_strdup(args), &splitted);
 	cmd -> flags = splitted;
 	cmd -> bin = *splitted;
 	(*data)-> cmd = cmd;
@@ -133,13 +133,9 @@ char	*here_doc(t_data *data)
 	{
 		ft_printf("> ");
 		tmp = get_next_line(STDIN_FILENO);
-		if (!tmp)
-			ft_putchar_fd('\n', STDOUT_FILENO);
-		ft_strrplc(tmp, '\n', '\0');
-		if (!tmp || (tmp && *tmp != '\n' &&
-			!(strncmp(tmp, data -> argv[2], ft_strlen(data -> argv[2]) + 1))))
+		if (tmp && ft_strncmp(tmp, data -> argv[2], ft_strlen(tmp) - 1) == 0)
 			break ;
-		ft_putendl_fd(tmp, data -> fdin);
+		ft_putstr_fd(tmp, data -> fdin);
 		free(tmp);
 	}
 	free(tmp);

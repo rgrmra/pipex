@@ -6,13 +6,13 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 17:53:03 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/02/07 21:07:07 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/02/16 20:21:47 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-void	ft_split_quotte(char *tmp, char ***splitted)
+void	ft_split_quote(char *tmp, char ***splitted)
 {
 	int		i;
 	char	sign;
