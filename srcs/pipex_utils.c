@@ -6,7 +6,7 @@
 /*   By: rde-mour <rde-mour@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/21 17:56:19 by rde-mour          #+#    #+#             */
-/*   Updated: 2024/03/15 14:52:40 by rde-mour         ###   ########.org.br   */
+/*   Updated: 2024/03/15 15:56:16 by rde-mour         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,26 +70,20 @@ static void	execute_command(t_data *data)
 	int		i;
 	char	*path;
 
-	i = 0;
-	path = 0;
 	get_command(&data, *(data -> argv + data -> cmdnbr));
+	if (data->cmd->bin && ft_strchr("./", (*(data->cmd->bin)))
+		&& execve(data->cmd->bin, data->cmd->flags, data->envp) < 0)
+		ft_error(data, data->cmd->bin, strerror(errno), errno);
+	i = 0;
+	path = NULL;
 	while (data -> path && *(data -> path + i))
 	{
 		ft_sprintf(&path, "%s/%s", *(data -> path + i++), data -> cmd -> bin);
 		if (path && access(path, F_OK | X_OK) == 0
-			&& execve(path, data -> cmd -> flags, data -> envp) < 0)
-		{
-			free(path);
-			ft_error(data, data -> cmd -> bin, strerror(errno), errno);
-		}
+			&& execve(path, data->cmd->flags, data->envp) < 0)
+			ft_error(data, data->cmd->bin, strerror(errno), errno);
 		free(path);
 	}
-	if (data -> cmd -> bin
-		&& access(data -> cmd -> bin, F_OK) == 0
-		&& execve(data -> cmd -> bin, data -> cmd -> flags, data -> envp) < 0)
-		ft_error(data, data -> cmd -> bin, strerror(errno), errno);
-	if (data -> cmd -> bin && ft_strchr(data -> cmd -> bin, '/'))
-		ft_error(data, data -> cmd -> bin, "No such file or directory", 127);
 	ft_error(data, data -> cmd -> bin, "command not found", 127);
 }
 
